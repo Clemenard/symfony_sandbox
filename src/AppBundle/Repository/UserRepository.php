@@ -1,4 +1,6 @@
 <?php
+use AppBundle\Entity\User;
+use AppBundle\Entity\UserExtern;
 
 namespace AppBundle\Repository;
 
@@ -10,4 +12,16 @@ namespace AppBundle\Repository;
  */
 class UserRepository extends \Doctrine\ORM\EntityRepository
 {
+
+  public function findByMail($email){
+    $query = $this->execRequest("SELECT * FROM users  WHERE email= :email ",array('email'=> $email));
+    if( $query->rowCount() == 1 ){
+      $query->setFetchMode(PDO::FETCH_CLASS,'User');
+    $user=$query->fetch();
+    return $user;
+    }
+    else {
+        return false;
+    }
+      }
 }

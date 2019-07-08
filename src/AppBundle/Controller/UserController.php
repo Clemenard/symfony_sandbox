@@ -3,17 +3,22 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
 use AppBundle\Entity\UserExtern;
-use Symfony\Component\Routing\Annotation\Route;
+use AppBundle\Repôsitory\UserRepository;
+
 use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Routing\Annotation\Route;
+
 
 
 class UserController extends Controller
 {
 /**
- * @Route("/create")
+ * @Route("/create", name="create")
  */
 public function createAction()
 {
@@ -36,6 +41,46 @@ public function createAction()
     return new Response('Saved new user with id '.$product->getId());
 }
 
+/**
+ * @Route("/logout", name="logout")
+ */
+public function logoutAction()
+{
+    unset($_SESSION['profil']);
+    return $this->redirectToRoute('accueil');
+}
+
+/**
+ * @Route("/form", name="form")
+ */
+public function formAction()
+{
+    unset($_SESSION['profil']);
+    return $this->redirectToRoute('accueil');
+}
+
+/**
+ * @Route("/login", name="login")
+ */
+public function loginAction()
+{
+
+$repo = $this -> getDoctrine() -> getRepository(User::class);
+$_SESSION['profil'] = $repo -> findByEmail($_POST['email'])[0];
+if(!$_SESSION['profil']){
+    unset($_SESSION['users']);
+      $url = 'https://reqres.in/api/users?page=1&per_page=6';
+    $json = file_get_contents($url);
+    $arrayJson = json_decode($json, true);
+    foreach($arrayJson['data'] as $guestUser){
+
+      $guestUser=new UserExtern($guestUser['first_name'],$guestUser['last_name'],$guestUser['email'],$guestUser['avatar']);
+      if($guestUser->getEmail() == $_POST['email']){$_SESSION['profil']=$guestUser;}
+      $_SESSION['users'][]=$guestUser;
+      }}
+    return $this->redirectToRoute('accueil');
+}
+
 // if you have multiple entity managers, use the registry to fetch them
 public function editAction()
 {
@@ -45,7 +90,7 @@ public function editAction()
 }
 
 /**
-* @Route("/user", name="accueil")
+* @Route("/", name="accueil")
 *
 * Affiche tous les produits
 */
@@ -77,9 +122,11 @@ if(!isset($_SESSION['users'])){
 
   $params = array(
     'users' => $users,
-    'exUsers' =>$_SESSION['users']
+    'exUsers' =>$_SESSION['users'],
+    'profil' =>''
   );
-
+  if(isset($_SESSION['profil'])){
+$params['profil']=$_SESSION['profil'];}
   return $this -> render('User/index.html.twig', $params);
 }
 }
