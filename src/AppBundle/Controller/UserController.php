@@ -2,10 +2,12 @@
 namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
+use AppBundle\Entity\UserExtern;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Session\Session;
 
 
 class UserController extends Controller
@@ -56,10 +58,26 @@ public function accueilAction(){
   $users = $repo -> findAll();
 
 
+  // set and get session attributes
+if(!isset($_SESSION['users'])){
+  unset($_SESSION['users']);
+    $url = 'https://reqres.in/api/users?page=1&per_page=6';
+  $json = file_get_contents($url);
+  $arrayJson = json_decode($json, true);
+  foreach($arrayJson['data'] as $guestUser){
+
+    $guestUser=new UserExtern($guestUser['first_name'],$guestUser['last_name'],$guestUser['email'],$guestUser['avatar']);
+    $_SESSION['users'][]=$guestUser;
+
+    }
+
+
+}
 
 
   $params = array(
-    'users' => $users
+    'users' => $users,
+    'exUsers' =>$_SESSION['users']
   );
 
   return $this -> render('User/index.html.twig', $params);

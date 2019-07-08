@@ -12,4 +12,16 @@
   </div>
   <hr />
 {% endfor %}
+
+{% for exUser in exUsers %}
+<div class="row" class="user">
+<img class="col-4" src="{{ exUser.avatar }}" alt="Card image cap">
+ <div class="col-8">
+ <h5 class="card-title">{{ exUser.firstName|capitalize  }} {{ exUser.lastName|capitalize }}</h5>
+  <p class="card-text">{{ exUser.email }}</p>
+  </div>
+  </div>
+  <hr />
+{% endfor %}
+
 {% endblock %}
