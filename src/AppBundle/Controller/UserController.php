@@ -3,7 +3,8 @@ namespace AppBundle\Controller;
 
 use AppBundle\Entity\User;
 use AppBundle\Entity\UserExtern;
-use AppBundle\Repôsitory\UserRepository;
+use AppBundle\Repository\UserRepository;
+use AppBundle\Form\UserType;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -53,10 +54,29 @@ public function logoutAction()
 /**
  * @Route("/form", name="form")
  */
-public function formAction()
+public function formAction(Request $request)
 {
-    unset($_SESSION['profil']);
-    return $this->redirectToRoute('accueil');
+$user=$_SESSION['profil'];
+    $form = $this->createForm(UserType::class, $user);
+      $form -> handleRequest($request);
+    $params = array(
+      'userForm' => $form -> createView(),
+      'profil' =>''
+    );
+
+    if ($form->isSubmitted() && $form->isValid()) {
+$entityManager = $this->getDoctrine()->getManager();
+       $task = $form->getData();
+        $entityManager->persist($task);
+        $entityManager->flush();
+
+       return $this->redirectToRoute('accueil');
+   }
+
+
+    if(isset($_SESSION['profil'])){
+  $params['profil']=$_SESSION['profil'];}
+    return $this -> render('User/form.html.twig', $params);
 }
 
 /**

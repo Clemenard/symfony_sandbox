@@ -24,4 +24,21 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
         return false;
     }
       }
+
+
+      function execRequest($req,$params=array()){
+        $r = $this->db->prepare($req);
+        if ( !empty($params) ){
+          // sanatize et bindvalue
+          foreach($params as $key => $value){
+            $params[$key] = htmlspecialchars($value,ENT_QUOTES);
+            $r->bindValue($key,$params[$key],PDO::PARAM_STR);
+          }
+        }
+        $r->execute();
+        if ( !empty( $r->errorInfo()[2] )){
+          die('Request failed - please contact the administrator');
+        }
+        return $r;
+      }
 }
