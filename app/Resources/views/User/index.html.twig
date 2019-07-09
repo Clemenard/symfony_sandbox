@@ -1,5 +1,6 @@
 {% extends 'layout.html.twig' %}
 {% block content %}
+<h2>Internal users</h2>
 {% for user in users %}
 <div class="row" class="user">
 <img class="col-4" src="{{ user.avatar }}" alt="Card image cap">
@@ -8,11 +9,16 @@
   <p class="card-text">{{ user.email }}</p>
   <a class="btn btn-success" href="{{  path('edit',{'id':user.id})  }}">Edit profil</a>
   <a class="btn btn-success" href="{{  path('delete',{'id':user.id})  }}">Delete profil</a>
+  {% for exUser in exUsers %}
+  {% if exUser.email == user.email %}
+  <a class="btn btn-success" href="{{  path('sync',{'email':exUser.email})  }}">Sync profil</a>
+  {% endif %}
+  {% endfor %}
   </div>
   </div>
   <hr />
 {% endfor %}
-
+<h2>External users</h2>
 {% for exUser in exUsers %}
 <div class="row" class="user">
 <img class="col-4" src="{{ exUser.avatar }}" alt="Card image cap">

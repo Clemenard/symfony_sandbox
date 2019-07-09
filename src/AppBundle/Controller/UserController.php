@@ -5,6 +5,7 @@ use AppBundle\Entity\User;
 use AppBundle\Entity\UserExtern;
 use AppBundle\Repository\UserRepository;
 use AppBundle\Form\UserType;
+use AppBundle\Form\ExternUserType;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
@@ -80,7 +81,7 @@ $entityManager = $this->getDoctrine()->getManager();
 }
 
 /**
- * @Route("/form/{id}", name="edit")
+ * @Route("/form/edit/{id}", name="edit")
  */
 public function editAction(Request $request,$id)
 {
@@ -106,6 +107,35 @@ $entityManager = $this->getDoctrine()->getManager();
     if(isset($_SESSION['profil'])){
   $params['profil']=$_SESSION['profil'];}
     return $this -> render('User/form.html.twig', $params);
+}
+
+/**
+ * @Route("/form/sync/{email}", name="sync")
+ */
+public function syncAction(Request $request,$email)
+{
+  unset($_SESSION['users']);
+  $url = 'https://reqres.in/api/users?page=1&per_page=6';
+$json = file_get_contents($url);
+$arrayJson = json_decode($json, true);
+foreach($arrayJson['data'] as $guestUser){
+
+  $guestUser=new UserExtern($guestUser['first_name'],$guestUser['last_name'],$guestUser['email'],$guestUser['avatar']);
+  if($guestUser->getEmail() == $email){$syncUser=$guestUser;}
+  $_SESSION['users'][]=$guestUser;
+  }
+      $repo = $this -> getDoctrine() -> getRepository(User::class);
+      $product = $repo -> findByEmail($email)[0];
+$entityManager = $this->getDoctrine()->getManager();
+       $product->setFirstName($syncUser->getFirstName());
+       $product->setLastName($syncUser->getLastName());
+       $product->setAvatar($syncUser->getAvatar());
+        $entityManager->persist($product);
+        $entityManager->flush();
+
+    if(isset($_SESSION['profil'])){
+  $params['profil']=$_SESSION['profil'];}
+     return $this->redirectToRoute('accueil');
 }
 
 /**
