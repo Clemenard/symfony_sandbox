@@ -17,7 +17,7 @@ class UserType extends AbstractType
      */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
-        $builder->add('firstName')->add('lastName')->add('email')->add('avatar')->add('save', SubmitType::class, ['label' => 'Create User']);
+        $builder->add('firstName')->add('lastName')->add('email')->add('avatar');
     }/**
      * {@inheritdoc}
      */

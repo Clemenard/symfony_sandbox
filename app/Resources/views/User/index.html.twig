@@ -6,8 +6,8 @@
  <div class="col-8">
  <h5 class="card-title">{{ user.firstName|capitalize  }} {{ user.lastName|capitalize }}</h5>
   <p class="card-text">{{ user.email }}</p>
-  <a class="btn btn-success" href="form.php?id={{ user.id }}">Edit profil</a>
-  <a class="btn btn-success" href="?action=delete&id={{ user.id }}">Delete profil</a>
+  <a class="btn btn-success" href="{{  path('edit',{'id':user.id})  }}">Edit profil</a>
+  <a class="btn btn-success" href="{{  path('delete',{'id':user.id})  }}">Delete profil</a>
   </div>
   </div>
   <hr />

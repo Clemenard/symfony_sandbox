@@ -56,12 +56,12 @@ public function logoutAction()
  */
 public function formAction(Request $request)
 {
-$user=$_SESSION['profil'];
-    $form = $this->createForm(UserType::class, $user);
+    $form = $this->createForm(UserType::class);
       $form -> handleRequest($request);
     $params = array(
       'userForm' => $form -> createView(),
-      'profil' =>''
+      'profil' =>'',
+      'submitType' => 'Create'
     );
 
     if ($form->isSubmitted() && $form->isValid()) {
@@ -77,6 +77,48 @@ $entityManager = $this->getDoctrine()->getManager();
     if(isset($_SESSION['profil'])){
   $params['profil']=$_SESSION['profil'];}
     return $this -> render('User/form.html.twig', $params);
+}
+
+/**
+ * @Route("/form/{id}", name="edit")
+ */
+public function editAction(Request $request,$id)
+{
+  $repo = $this -> getDoctrine() -> getRepository(User::class);
+    $form = $this->createForm(UserType::class,$repo -> find($id));
+      $form -> handleRequest($request);
+    $params = array(
+      'userForm' => $form -> createView(),
+      'profil' =>'',
+      'submitType' => 'Edit'
+    );
+
+    if ($form->isSubmitted() && $form->isValid()) {
+$entityManager = $this->getDoctrine()->getManager();
+       $task = $form->getData();
+        $entityManager->persist($task);
+        $entityManager->flush();
+
+       return $this->redirectToRoute('accueil');
+   }
+
+
+    if(isset($_SESSION['profil'])){
+  $params['profil']=$_SESSION['profil'];}
+    return $this -> render('User/form.html.twig', $params);
+}
+
+/**
+ * @Route("/delete/{id}", name="delete")
+ */
+public function deleteAction($id)
+{
+  $entityManager = $this->getDoctrine()->getManager();
+  $repo = $this -> getDoctrine() -> getRepository(User::class);
+  $product = $repo -> find($id);
+  $entityManager->remove($product);
+$entityManager->flush();
+return $this->redirectToRoute('accueil');
 }
 
 /**
@@ -101,13 +143,7 @@ if(!$_SESSION['profil']){
     return $this->redirectToRoute('accueil');
 }
 
-// if you have multiple entity managers, use the registry to fetch them
-public function editAction()
-{
-    $doctrine = $this->getDoctrine();
-    $entityManager = $doctrine->getManager();
-    $otherEntityManager = $doctrine->getManager('other_connection');
-}
+
 
 /**
 * @Route("/", name="accueil")
