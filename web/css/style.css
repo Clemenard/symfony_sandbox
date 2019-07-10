@@ -1,0 +1,10 @@
+.user p{
+  width: 48rem;
+  margin-top: 50px;
+}
+.card-text, .card-title{
+  color : grey;
+}
+#danger{
+  display: none;
+}

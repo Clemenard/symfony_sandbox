@@ -14,11 +14,32 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 
 
 class UserController extends Controller
 {
+
+  /**
+   * @Route("/apiCall/{email}", name="apiCall")
+   */
+  public function apiCallAction($email){
+    unset($_SESSION['users']);
+    $url = 'https://reqres.in/api/users?page=1&per_page=6';
+    $json = file_get_contents($url);
+    $arrayJson = json_decode($json, true);
+    $result=false;
+
+    foreach($arrayJson['data'] as $guestUser){
+    if($guestUser['email']==$email){$result=$guestUser;}
+    $guestUser=new UserExtern($guestUser['first_name'],$guestUser['last_name'],$guestUser['email'],$guestUser['avatar']);
+    $_SESSION['users'][]=$guestUser;
+    }
+
+    return new JsonResponse($result);
+  }
+
 /**
  * @Route("/create", name="create")
  */
@@ -125,7 +146,7 @@ foreach($arrayJson['data'] as $guestUser){
   $_SESSION['users'][]=$guestUser;
   }
       $repo = $this -> getDoctrine() -> getRepository(User::class);
-      $product = $repo -> findByEmail($email)[0];
+      $product = $repo -> findByEmail($email);
 $entityManager = $this->getDoctrine()->getManager();
        $product->setFirstName($syncUser->getFirstName());
        $product->setLastName($syncUser->getLastName());
@@ -158,7 +179,7 @@ public function loginAction()
 {
 
 $repo = $this -> getDoctrine() -> getRepository(User::class);
-$_SESSION['profil'] = $repo -> findByEmail($_POST['email'])[0];
+$_SESSION['profil'] = $repo -> findByEmail($_POST['email']);
 if(!$_SESSION['profil']){
     unset($_SESSION['users']);
       $url = 'https://reqres.in/api/users?page=1&per_page=6';
@@ -205,11 +226,12 @@ if(!isset($_SESSION['users'])){
 
 }
 
-
+$mailList=$repo->mailList();
   $params = array(
     'users' => $users,
     'exUsers' =>$_SESSION['users'],
-    'profil' =>''
+    'profil' =>'',
+    'mailList'=>$mailList
   );
   if(isset($_SESSION['profil'])){
 $params['profil']=$_SESSION['profil'];}

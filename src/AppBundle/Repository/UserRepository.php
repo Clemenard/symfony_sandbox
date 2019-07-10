@@ -17,13 +17,23 @@ class UserRepository extends \Doctrine\ORM\EntityRepository
     $query = $this->execRequest("SELECT * FROM users  WHERE email= :email ",array('email'=> $email));
     if( $query->rowCount() == 1 ){
       $query->setFetchMode(PDO::FETCH_CLASS,'User');
-    $user=$query->fetch();
+    $user=$query->fetch()->setMaxResults(1)->getOneOrNullResult();
     return $user;
     }
     else {
         return false;
     }
       }
+
+      public function mailList()
+       {
+           return $this->getEntityManager()
+               ->createQuery(
+                   'SELECT u.email FROM AppBundle:User u'
+               )
+               ->getResult();
+       }
+
 
 
       function execRequest($req,$params=array()){

@@ -19,7 +19,18 @@
   <hr />
 {% endfor %}
 <h2>External users</h2>
+
+
+
+
 {% for exUser in exUsers %}
+{% set isEmail = 0 %}
+{% for user in users %}
+{% if exUser.email == user.email %}
+{% set isEmail = 1 %}
+{% endif %}
+{% endfor %}
+{% if isEmail==0 %}
 <div class="row" class="user">
 <img class="col-4" src="{{ exUser.avatar }}" alt="Card image cap">
  <div class="col-8">
@@ -28,6 +39,7 @@
   </div>
   </div>
   <hr />
+  {% endif %}
 {% endfor %}
 
 {% endblock %}

@@ -1,7 +1,9 @@
 {% extends 'layout.html.twig' %}
 {% block content %}
+<div class="alert alert-danger" id="danger" ></div>
 {{ form_start(userForm) }}
 {{ form_widget(userForm) }}
+  <div class="btn btn-success" id="import" >Sync profil</div>
 <input type="submit" class="btn" value="{{ submitType }}"/>
 {{ form_end(userForm) }}
 {% endblock %}
